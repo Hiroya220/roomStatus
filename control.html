@@ -5,42 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>操作パネル</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 1em; }
-        button {
-            font-size: 50px;
-            width: 100px;
-            height: 100px;
-            margin: 15px;
-            cursor: pointer;
+        /* bodyタグ: ページ全体の基本的な設定です */
+        body {
+            /* 文字のフォントを指定します */
+            font-family: sans-serif;
+            /* 中身を中央揃えにします */
+            text-align: center;
+            /* ページの端から少し内側に余白を設けます */
+            padding: 1em;
+        }
+
+        /* 記号ボタンを囲むdivタグ用の設定です */
+        #symbol-buttons {
+            /* Flexboxというレイアウト方法を使うことを宣言します */
             display: flex;
+            /* 中身のアイテム（ボタン）を水平方向の中央に配置します */
             justify-content: center;
+        }
+
+        /* idがsymbol-buttonsの中にあるbuttonタグにだけ適用される設定です */
+        #symbol-buttons button {
+            /* 文字の大きさを50ピクセルにします */
+            font-size: 50px;
+            /* ボタンの横幅を100ピクセルにします */
+            width: 100px;
+            /* ボタンの高さを100ピクセルにします */
+            height: 100px;
+            /* ボタンの外側の余白を上下左右に15ピクセル設けます */
+            margin: 15px;
+            /* マウスカーソルを乗せたときに指の形になるようにします */
+            cursor: pointer;
+            
+            /* --- ここから下は、ボタンの中の記号を真ん中に配置するための設定です --- */
+            /* ボタンの中身もFlexboxで配置します */
+            display: flex;
+            /* ボタンの中身を水平方向の中央に配置します */
+            justify-content: center;
+            /* ボタンの中身を垂直方向の中央に配置します */
             align-items: center;
-            line-height: 1; /* 行の高さを調整 */
+            /* 文字の行の高さを調整してズレを防ぎます */
+            line-height: 1;
+            /* ボタンの内側の余白をなくします */
             padding: 0;
         }
+
+        /* 備考欄のセクション用の設定です */
         #remarks-section {
+            /* 上側に30ピクセルの余白を設けます */
             margin-top: 30px;
         }
+        
+        /* 備考の入力欄(input)用の設定です */
         #remarksInput {
+            /* 横幅を親要素の80%にします */
             width: 80%;
+            /* 内側の余白を10ピクセル設けます */
             padding: 10px;
+            /* 文字の大きさを16ピクセルにします */
             font-size: 16px;
+            /* 下側に10ピクセルの余白を設けます */
             margin-bottom: 10px;
         }
+
+        /* 「備考を更新」ボタン用の設定です */
         #updateRemarksBtn {
+            /* 横幅を親要素の80%にします */
             width: 80%;
+            /* 内側の余白を上下に15ピクセル設けます */
             padding: 15px;
+            /* 文字の大きさを18ピクセルにします */
             font-size: 18px;
+            /* 背景色を青色にします */
             background-color: #007bff;
+            /* 文字色を白色にします */
             color: white;
+            /* 枠線をなくします */
             border: none;
+            /* 角を少し丸くします */
             border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <h1>部屋の状況を変更</h1>
-    <div>
+    <div id="symbol-buttons">
         <button id="circleBtn">○</button>
         <button id="triangleBtn">△</button>
         <button id="crossBtn">×</button>
@@ -48,58 +96,81 @@
 
     <div id="remarks-section">
         <h2>備考</h2>
-        <input type="text" id="remarksInput" placeholder="例：ミーティング">
+        <input type="text" id="remarksInput" placeholder="例：15時まで会議中">
         <button id="updateRemarksBtn">備考を更新</button>
     </div>
 
     <script type="module">
-        // ▼▼▼▼▼ ステップ1でコピーした自分のfirebaseConfigをここに貼り付ける ▼▼▼▼▼
+        // --- ここから下は、Firebaseと連携するための設定です ---
+        
+        // ▼▼▼▼▼ あなたのfirebaseConfig（Firebaseの設定情報）をここに貼り付けます ▼▼▼▼▼
         const firebaseConfig = {
-            apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
-            authDomain: "roomstatus-7b0c4.firebaseapp.com",
-            databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
-            projectId: "roomstatus-7b0c4",
-            storageBucket: "roomstatus-7b0c4.firebasestorage.app",
-            messagingSenderId: "355762487600",
-            appId: "1:355762487600:web:c27907db8d4c8de18608f5",
-            measurementId: "G-NRH5D6E3G0"
+        apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
+        authDomain: "roomstatus-7b0c4.firebaseapp.com",
+        databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
+        projectId: "roomstatus-7b0c4",
+        storageBucket: "roomstatus-7b0c4.firebasestorage.app",
+        messagingSenderId: "355762487600",
+        appId: "1:355762487600:web:c27907db8d4c8de18608f5",
+        measurementId: "G-NRH5D6E3G0"
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        // --- ここから下は、Firebaseの機能を使えるようにするための準備です ---
+
+        // Firebaseのプログラム（initializeApp）を読み込みます
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        // Firebaseデータベースのプログラム（getDatabase, ref, set, get）を読み込みます
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
+        // 上で設定したfirebaseConfigを使って、Firebaseアプリを初期化（準備）します
         const app = initializeApp(firebaseConfig);
+        // 初期化したアプリから、データベース機能を使えるようにします
         const db = getDatabase(app);
-        const statusRef = ref(db, 'room/status'); // データの保存場所
+        // データベースの中の'room/status'という場所を参照（ターゲットに設定）します
+        const statusRef = ref(db, 'room/status');
 
-        // ボタンと入力欄の要素を取得
+        // --- ここから下は、ボタンなどがクリックされたときの実際の動きを設定します ---
+
+        // HTMLの中からidが'circleBtn'の要素（○ボタン）を探して、変数に入れます
         const circleBtn = document.getElementById('circleBtn');
+        // HTMLの中からidが'triangleBtn'の要素（△ボタン）を探して、変数に入れます
         const triangleBtn = document.getElementById('triangleBtn');
+        // HTMLの中からidが'crossBtn'の要素（×ボタン）を探して、変数に入れます
         const crossBtn = document.getElementById('crossBtn');
+        // HTMLの中からidが'remarksInput'の要素（備考入力欄）を探して、変数に入れます
         const remarksInput = document.getElementById('remarksInput');
+        // HTMLの中からidが'updateRemarksBtn'の要素（備考更新ボタン）を探して、変数に入れます
         const updateRemarksBtn = document.getElementById('updateRemarksBtn');
 
-        // 記号ボタンがクリックされたときの処理
+        // 記号ボタンが押されたときに行う処理を、updateSymbolという名前でひとまとめにします
         const updateSymbol = (newSymbol) => {
-            // 記号を更新し、備考は空にする
+            // データベースの'room/status'に、新しい記号と空の備考を書き込みます
             set(statusRef, { symbol: newSymbol, text: '' });
+            // 「〇〇に設定しました」というポップアップを表示します
             alert(`「${newSymbol}」に設定しました`);
-            remarksInput.value = ''; // 入力欄もクリア
+            // 備考の入力欄を空にします
+            remarksInput.value = '';
         };
 
+        // ○ボタンがクリックされたら、updateSymbol処理を'○'という文字を渡して実行します
         circleBtn.onclick = () => updateSymbol('○');
+        // △ボタンがクリックされたら、updateSymbol処理を'△'という文字を渡して実行します
         triangleBtn.onclick = () => updateSymbol('△');
-        crossBtn.onclick = () => updateSymbol('×');
+        // ×ボタンがクリックされたら、updateSymbol処理を'×'という文字を渡して実行します
         
-        // 「備考を更新」ボタンがクリックされたときの処理
+        // 「備考を更新」ボタンがクリックされたときの処理です
         updateRemarksBtn.onclick = async () => {
+            // 備考入力欄に入力されている文字を取得します
             const newText = remarksInput.value;
-            // 現在の記号を取得してから、テキストだけを更新する
+            // データベースから現在の情報を一度だけ取得します
             const snapshot = await get(statusRef);
-            const currentSymbol = snapshot.val()?.symbol || '○'; // データがなければ'○'をデフォルトにする
+            // 現在設定されている記号を取得します。もし何もなければ'○'を初期値とします
+            const currentSymbol = snapshot.val()?.symbol || '○';
             
+            // データベースに、現在の記号と新しい備考を書き込みます
             set(statusRef, { symbol: currentSymbol, text: newText });
+            // 「備考を更新しました」というポップアップを表示します
             alert('備考を更新しました');
         };
 
