@@ -35,6 +35,12 @@
             margin: 15px;
             /* マウスカーソルを乗せたときに指の形になるようにします */
             cursor: pointer;
+            /* ボタンの枠線を設定します */
+            border: 2px solid #ccc;
+            /* ボタンの背景色を白色にします */
+            background-color: #fff;
+            /* 色が変わるアニメーションを0.3秒かけて滑らかにします */
+            transition: background-color 0.3s, border-color 0.3s;
             
             /* --- ここから下は、ボタンの中の記号を真ん中に配置するための設定です --- */
             /* ボタンの中身もFlexboxで配置します */
@@ -48,6 +54,24 @@
             /* ボタンの内側の余白をなくします */
             padding: 0;
         }
+        
+        /* ▼▼▼▼▼ ここから下が、選択中のボタンのデザイン設定です ▼▼▼▼▼ */
+        /* 'active-circle'クラスが付いたボタンのデザイン */
+        #symbol-buttons button.active-circle {
+            background-color: #e6ffed; /* 背景を淡い緑に */
+            border-color: #28a745;   /* 枠線を緑に */
+        }
+        /* 'active-triangle'クラスが付いたボタンのデザイン */
+        #symbol-buttons button.active-triangle {
+            background-color: #fff8e1; /* 背景を淡いオレンジに */
+            border-color: #ffc107;   /* 枠線をオレンジに */
+        }
+        /* 'active-cross'クラスが付いたボタンのデザイン */
+        #symbol-buttons button.active-cross {
+            background-color: #ffebee; /* 背景を淡い赤に */
+            border-color: #dc3545;   /* 枠線を赤に */
+        }
+        /* ▲▲▲▲▲ ここまで ▲▲▲▲▲ */
 
         /* 備考欄のセクション用の設定です */
         #remarks-section {
@@ -101,27 +125,23 @@
     </div>
 
     <script type="module">
-        // --- ここから下は、Firebaseと連携するための設定です ---
-        
         // ▼▼▼▼▼ あなたのfirebaseConfig（Firebaseの設定情報）をここに貼り付けます ▼▼▼▼▼
         const firebaseConfig = {
-        apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
-        authDomain: "roomstatus-7b0c4.firebaseapp.com",
-        databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
-        projectId: "roomstatus-7b0c4",
-        storageBucket: "roomstatus-7b0c4.firebasestorage.app",
-        messagingSenderId: "355762487600",
-        appId: "1:355762487600:web:c27907db8d4c8de18608f5",
-        measurementId: "G-NRH5D6E3G0"
+            apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
+            authDomain: "roomstatus-7b0c4.firebaseapp.com",
+            databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
+            projectId: "roomstatus-7b0c4",
+            storageBucket: "roomstatus-7b0c4.firebasestorage.app",
+            messagingSenderId: "355762487600",
+            appId: "1:355762487600:web:c27907db8d4c8de18608f5",
+            measurementId: "G-NRH5D6E3G0"
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
-        // --- ここから下は、Firebaseの機能を使えるようにするための準備です ---
-
         // Firebaseのプログラム（initializeApp）を読み込みます
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        // Firebaseデータベースのプログラム（getDatabase, ref, set, get）を読み込みます
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+        // Firebaseデータベースのプログラムを読み込みます(onValueを追加)
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
         // 上で設定したfirebaseConfigを使って、Firebaseアプリを初期化（準備）します
         const app = initializeApp(firebaseConfig);
@@ -129,8 +149,6 @@
         const db = getDatabase(app);
         // データベースの中の'room/status'という場所を参照（ターゲットに設定）します
         const statusRef = ref(db, 'room/status');
-
-        // --- ここから下は、ボタンなどがクリックされたときの実際の動きを設定します ---
 
         // HTMLの中からidが'circleBtn'の要素（○ボタン）を探して、変数に入れます
         const circleBtn = document.getElementById('circleBtn');
@@ -158,6 +176,7 @@
         // △ボタンがクリックされたら、updateSymbol処理を'△'という文字を渡して実行します
         triangleBtn.onclick = () => updateSymbol('△');
         // ×ボタンがクリックされたら、updateSymbol処理を'×'という文字を渡して実行します
+        crossBtn.onclick = () => updateSymbol('×');
         
         // 「備考を更新」ボタンがクリックされたときの処理です
         updateRemarksBtn.onclick = async () => {
@@ -173,6 +192,31 @@
             // 「備考を更新しました」というポップアップを表示します
             alert('備考を更新しました');
         };
+
+        // ▼▼▼▼▼ ここからが、データベースの変更を監視してボタンの色を変える処理です ▼▼▼▼▼
+        // データベース('room/status')の変更を常に監視します
+        onValue(statusRef, (snapshot) => {
+            // データベースから現在の状況（記号）を取得します
+            const currentSymbol = snapshot.val()?.symbol;
+
+            // まず、すべてのボタンからアクティブ用のクラスを一旦削除します
+            circleBtn.classList.remove('active-circle');
+            triangleBtn.classList.remove('active-triangle');
+            crossBtn.classList.remove('active-cross');
+
+            // 現在の記号に応じて、対応するボタンにだけアクティブ用のクラスを追加します
+            if (currentSymbol === '○') {
+                // もし記号が'○'なら、○ボタンに'active-circle'クラスを追加
+                circleBtn.classList.add('active-circle');
+            } else if (currentSymbol === '△') {
+                // もし記号が'△'なら、△ボタンに'active-triangle'クラスを追加
+                triangleBtn.classList.add('active-triangle');
+            } else if (currentSymbol === '×') {
+                // もし記号が'×'なら、×ボタンに'active-cross'クラスを追加
+                crossBtn.classList.add('active-cross');
+            }
+        });
+        // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
     </script>
 </body>
