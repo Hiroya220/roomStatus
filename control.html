@@ -115,10 +115,23 @@
             /* 角を少し丸くします */
             border-radius: 5px;
         }
+        /* 「入力欄をクリア」ボタン用の設定を追加 */
+        #clearRemarksBtn {
+            /* 横幅を親要素の80%にします */
+            width: 80%;
+            /* 内側の余白を少し小さめにします */
+            padding: 10px;
+            /* 文字の大きさを16ピクセルにします */
+            font-size: 16px;
+            /* 文字色を白色にします */
+            color: #555;
+            /* 上のボタンとの間に余白を設けます */
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>部屋の状況を変更</h1>
+    <h1>roomStatus</h1>
     <div id="symbol-buttons">
         <button id="circleBtn">○</button>
         <button id="triangleBtn">△</button>
@@ -129,6 +142,7 @@
         <h2>備考</h2>
         <input type="text" id="remarksInput" placeholder="例：ミーティング">
         <button id="updateRemarksBtn">備考を更新</button>
+        <button id="clearRemarksBtn">入力欄をクリア</button>
     </div>
 
     <script type="module">
@@ -167,6 +181,8 @@
         const remarksInput = document.getElementById('remarksInput');
         // HTMLの中からidが'updateRemarksBtn'の要素（備考更新ボタン）を探して、変数に入れます
         const updateRemarksBtn = document.getElementById('updateRemarksBtn');
+        // HTMLの中からidが'clearRemarksBtn'の要素（クリアボタン）を探して、変数に入れます
+        const clearRemarksBtn = document.getElementById('clearRemarksBtn');
 
         // 記号ボタンが押されたときに行う処理を、updateSymbolという名前でひとまとめにします
         const updateSymbol = (newSymbol) => {
@@ -219,6 +235,11 @@
                 crossBtn.classList.add('active-cross');
             }
         });
+        // 「入力欄をクリア」ボタンがクリックされたときの処理です
+        clearRemarksBtn.onclick = () => {
+            // 備考入力欄を空にします
+            remarksInput.value = '';
+        };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
     </script>
