@@ -100,8 +100,8 @@
 
         /* 「備考を更新」ボタン用の設定です */
         #updateRemarksBtn {
-            /* 横幅を親要素の80%にします */
-            width: 80%;
+            /* 横幅を親要素の60%にします */
+            width: 60%;
             /* 内側の余白を上下に15ピクセル設けます */
             padding: 15px;
             /* 文字の大きさを18ピクセルにします */
@@ -114,6 +114,8 @@
             border: none;
             /* 角を少し丸くします */
             border-radius: 5px;
+            /* 上のボタンとの間に余白を設けます */
+            margin-top: 20px;
         }
         /* 「入力欄をクリア」ボタン用の設定を追加 */
         #clearRemarksBtn {
@@ -123,8 +125,12 @@
             padding: 10px;
             /* 文字の大きさを16ピクセルにします */
             font-size: 16px;
-            /* 文字色を白色にします */
+            /* 文字色を灰色にします */
             color: #555;
+            /* 背景色を白色にします */
+            background-color: #fff;
+            /* 枠線をなくします */
+            border: none;
             /* 上のボタンとの間に余白を設けます */
             margin-top: 10px;
         }
@@ -141,8 +147,8 @@
     <div id="remarks-section">
         <h2>備考</h2>
         <input type="text" id="remarksInput" placeholder="例：ミーティング">
-        <button id="updateRemarksBtn">備考を更新</button>
-        <button id="clearRemarksBtn">入力欄をクリア</button>
+        <button id="updateRemarksBtn">更新</button>
+        <button id="clearRemarksBtn">クリア</button>
     </div>
 
     <script type="module">
