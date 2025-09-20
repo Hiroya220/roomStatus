@@ -160,8 +160,8 @@
 </head>
 <body>
     <div id="password-prompt">
-        <h2>パスワードを入力してください</h2>
-        <input type="password" id="password-input">
+        <h2>roomStatus</h2>
+        <input type="password" id="password-input" placeholder="PASSWORD">
         <button id="password-submit">送信</button>
     </div>
    <main id="main-content" style="display: none;">
@@ -210,8 +210,6 @@
             }
         };
 
-
-        // --- ここから下のFirebase連携処理は変更ありません ---
         // ▼▼▼▼▼ あなたのfirebaseConfig（Firebaseの設定情報）をここに貼り付けます ▼▼▼▼▼
         const firebaseConfig = {
             apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
