@@ -210,12 +210,12 @@
         // パスワード送信ボタンがクリックされたときの処理
         passwordSubmit.onclick = () => {
             // 1. 正しいパスワードが入力された場合（通常ルート）
-            if (passwordInput.value === CORRECT_PASSWORD) {
-                // 認証成功の処理
-                passwordPrompt.style.display = 'none';
-                mainContent.style.display = 'block';
-                return; // 処理をここで終了
-            }
+            // if (passwordInput.value === CORRECT_PASSWORD) {
+            //     // 認証成功の処理
+            //     passwordPrompt.style.display = 'none';
+            //     mainContent.style.display = 'block';
+            //     return; // 処理をここで終了
+            // }
 
             // 2. 入力欄が空の場合（隠しコマンドルート）
             if (passwordInput.value === '') {
