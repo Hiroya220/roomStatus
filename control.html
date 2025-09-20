@@ -235,6 +235,8 @@
         const db = getDatabase(app);
         // データベースの中の'room/status'という場所を参照（ターゲットに設定）します
         const statusRef = ref(db, 'room/status');
+        // display側からの更新完了通知を受け取る場所を参照します
+        const ackRef = ref(db, 'room/ack');
 
         // HTMLの中からidが'circleBtn'の要素（○ボタン）を探して、変数に入れます
         const circleBtn = document.getElementById('circleBtn');
@@ -251,8 +253,12 @@
 
         // 記号ボタンが押されたときに行う処理を、updateSymbolという名前でひとまとめにします
         const updateSymbol = (newSymbol) => {
-            // データベースの'room/status'に、新しい記号と空の備考を書き込みます
-            set(statusRef, { symbol: newSymbol, text: '' });
+           // ▼▼▼ 以下のように修正 ▼▼▼
+            // Date.now()で現在時刻を取得し、ユニークな更新IDとして利用します
+            const updateId = Date.now();
+            // データベースの'room/status'に、新しい記号・空の備考・更新IDを書き込みます
+            set(statusRef, { symbol: newSymbol, text: '', id: updateId });
+            // ▲▲▲ ここまで修正 ▲▲▲
             // 備考の入力欄を空にします
             remarksInput.value = '';
         };
@@ -266,15 +272,19 @@
         
         // 「備考を更新」ボタンがクリックされたときの処理です
         updateRemarksBtn.onclick = async () => {
+            // ▼▼▼ 以下のように修正 ▼▼▼
             // 備考入力欄に入力されている文字を取得します
             const newText = remarksInput.value;
             // データベースから現在の情報を一度だけ取得します
             const snapshot = await get(statusRef);
             // 現在設定されている記号を取得します。もし何もなければ'○'を初期値とします
             const currentSymbol = snapshot.val()?.symbol || '○';
+            // ユニークな更新IDを生成します
+            const updateId = Date.now();
             
-            // データベースに、現在の記号と新しい備考を書き込みます
-            set(statusRef, { symbol: currentSymbol, text: newText });
+            // データベースに、現在の記号と新しい備考、そして更新IDを書き込みます
+            set(statusRef, { symbol: currentSymbol, text: newText, id: updateId });
+            // ▲▲▲ ここまで修正 ▲▲▲
         };
 
         // ▼▼▼▼▼ ここからが、データベースの変更を監視してボタンの色を変える処理です ▼▼▼▼▼
@@ -314,7 +324,19 @@
             remarksInput.value = '';
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
-
+        // ↓↓↓ この処理をまるごと追加 ↓↓↓
+        // display側からの更新完了通知を監視します
+        onValue(ackRef, (snapshot) => {
+            // 通知されたIDを取得します
+            const ackId = snapshot.val()?.id;
+            // 通知があれば（初回読み込み時などは何もしない）
+            if (ackId) {
+                // ここで通知を受け取った際の具体的な処理を実装できます
+                // 今回はシンプルなアラートで通知します
+                console.log('Display updated with ID:', ackId);
+                alert('表示が更新されました');
+            }
+        });
     </script>
 </body>
 </html>
