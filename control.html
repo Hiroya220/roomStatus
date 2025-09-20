@@ -35,8 +35,12 @@
             margin: 15px;
             /* マウスカーソルを乗せたときに指の形になるようにします */
             cursor: pointer;
+            /* ボタン内部の記号の色を設定 */
+            color: #555;
             /* ボタンの枠線を設定します */
             border: 2px solid #ccc;
+            /* 角を少し丸くします */
+            border-radius: 5px;
             /* ボタンの背景色を白色にします */
             background-color: #fff;
             /* 色が変わるアニメーションを0.3秒かけて滑らかにします */
@@ -60,16 +64,19 @@
         #symbol-buttons button.active-circle {
             background-color: #e6ffed; /* 背景を淡い緑に */
             border-color: #28a745;   /* 枠線を緑に */
+            color: #28a745;
         }
         /* 'active-triangle'クラスが付いたボタンのデザイン */
         #symbol-buttons button.active-triangle {
             background-color: #fff8e1; /* 背景を淡いオレンジに */
             border-color: #ffc107;   /* 枠線をオレンジに */
+            color: #ffc107;
         }
         /* 'active-cross'クラスが付いたボタンのデザイン */
         #symbol-buttons button.active-cross {
             background-color: #ffebee; /* 背景を淡い赤に */
             border-color: #dc3545;   /* 枠線を赤に */
+            color: #dc3545;
         }
         /* ▲▲▲▲▲ ここまで ▲▲▲▲▲ */
 
@@ -165,8 +172,6 @@
         const updateSymbol = (newSymbol) => {
             // データベースの'room/status'に、新しい記号と空の備考を書き込みます
             set(statusRef, { symbol: newSymbol, text: '' });
-            // 「〇〇に設定しました」というポップアップを表示します
-            alert(`「${newSymbol}」に設定しました`);
             // 備考の入力欄を空にします
             remarksInput.value = '';
         };
@@ -189,8 +194,6 @@
             
             // データベースに、現在の記号と新しい備考を書き込みます
             set(statusRef, { symbol: currentSymbol, text: newText });
-            // 「備考を更新しました」というポップアップを表示します
-            alert('備考を更新しました');
         };
 
         // ▼▼▼▼▼ ここからが、データベースの変更を監視してボタンの色を変える処理です ▼▼▼▼▼
