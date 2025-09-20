@@ -11,8 +11,8 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #333;
-            color: #fff;
+            background-color: #fff;
+            color: #000;
             font-family: sans-serif;
             text-align: center;
         }
@@ -30,6 +30,7 @@
             margin-top: 20px;
             padding: 0 20px; /* 長文の場合に左右に余白 */
             min-height: 1.2em; /* 備考がない時も高さを確保 */
+            color: #333;
         }
     </style>
 </head>
@@ -70,6 +71,20 @@
                 // 記号と備考をそれぞれ表示
                 symbolDisplay.innerText = data.symbol || '?'; // 記号がなければ'?'
                 remarksDisplay.innerText = data.text || '';  // 備考がなければ空
+                switch (symbol) {
+                    case '○':
+                        symbolDisplay.style.color = 'green';
+                        break;
+                    case '△':
+                        symbolDisplay.style.color = 'orange';
+                        break;
+                    case '×':
+                        symbolDisplay.style.color = 'red';
+                        break;
+                    default:
+                        symbolDisplay.style.color = '#000'; // それ以外は黒
+                        break;
+                }
             } else {
                 // データが何もない場合
                 symbolDisplay.innerText = '?';
