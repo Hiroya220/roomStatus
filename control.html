@@ -197,20 +197,50 @@
 
 <script type="module">
         // --- ここから下がパスワード認証の処理です ---
+    　　// ▼▼▼ この行を追加 ▼▼▼
+        // 空のまま送信ボタンが押された回数を数えるカウンター
+        let emptyClickCount = 0;
         const CORRECT_PASSWORD = 'hiroya168';
         const passwordPrompt = document.getElementById('password-prompt');
         const mainContent = document.getElementById('main-content');
         const passwordInput = document.getElementById('password-input');
         const passwordSubmit = document.getElementById('password-submit');
 
+// ▼▼▼ この関数をまるごと差し替え ▼▼▼
+        // パスワード送信ボタンがクリックされたときの処理
         passwordSubmit.onclick = () => {
+            // 1. 正しいパスワードが入力された場合（通常ルート）
             if (passwordInput.value === CORRECT_PASSWORD) {
+                // 認証成功の処理
                 passwordPrompt.style.display = 'none';
                 mainContent.style.display = 'block';
-            } else {
-                alert('パスワードが違います。');
-                passwordInput.value = '';
+                return; // 処理をここで終了
             }
+
+            // 2. 入力欄が空の場合（隠しコマンドルート）
+            if (passwordInput.value === '') {
+                // カウンターを1増やす
+                emptyClickCount++;
+                // もしカウンターが3になったら
+                if (emptyClickCount === 3) {
+                    // 認証成功の処理
+                    passwordPrompt.style.display = 'none';
+                    mainContent.style.display = 'block';
+                }
+                // 3回未満の場合は、何もせず次のクリックを待つ
+                return; 
+            }
+
+            // 3. 上記のいずれでもない場合（間違ったパスワードが入力された場合）
+            alert('パスワードが違います。');
+            passwordInput.value = '';
+            // カウンターをリセットする
+            emptyClickCount = 0;
+        };
+    　　// ▼▼▼ この処理をまるごと追加 ▼▼▼
+        // パスワード入力欄に何か文字が入力されたら、カウンターをリセットする
+        passwordInput.oninput = () => {
+            emptyClickCount = 0;
         };
 
         // --- ここから下がFirebaseの基本設定です ---
