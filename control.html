@@ -195,37 +195,25 @@
     </div>
        </main>
 
-    <script type="module">
+<script type="module">
         // --- ここから下がパスワード認証の処理です ---
-        
-        // 正しいパスワードを設定します。必ず変更してください。
         const CORRECT_PASSWORD = 'hiroya168';
-
-        // HTMLからパスワード関連の要素を取得します
         const passwordPrompt = document.getElementById('password-prompt');
         const mainContent = document.getElementById('main-content');
         const passwordInput = document.getElementById('password-input');
         const passwordSubmit = document.getElementById('password-submit');
 
-        // パスワード送信ボタンがクリックされたときの処理
         passwordSubmit.onclick = () => {
-            // 入力された値が正しいパスワードと一致するかチェック
             if (passwordInput.value === CORRECT_PASSWORD) {
-                // 一致した場合
-                // パスワード入力画面を非表示にする
                 passwordPrompt.style.display = 'none';
-                // メインの操作画面を表示する
                 mainContent.style.display = 'block';
             } else {
-                // 一致しなかった場合
-                // エラーメッセージを表示
                 alert('パスワードが違います。');
-                // 入力欄を空にする
                 passwordInput.value = '';
             }
         };
 
-        // ▼▼▼▼▼ あなたのfirebaseConfig（Firebaseの設定情報）をここに貼り付けます ▼▼▼▼▼
+        // --- ここから下がFirebaseの基本設定です ---
         const firebaseConfig = {
             apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
             authDomain: "roomstatus-7b0c4.firebaseapp.com",
@@ -236,125 +224,83 @@
             appId: "1:355762487600:web:c27907db8d4c8de18608f5",
             measurementId: "G-NRH5D6E3G0"
         };
-        // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
-        // Firebaseのプログラム（initializeApp）を読み込みます
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        // Firebaseデータベースのプログラムを読み込みます(onValueを追加)
         import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-        // 上で設定したfirebaseConfigを使って、Firebaseアプリを初期化（準備）します
         const app = initializeApp(firebaseConfig);
-        // 初期化したアプリから、データベース機能を使えるようにします
         const db = getDatabase(app);
-        // データベースの中の'room/status'という場所を参照（ターゲットに設定）します
         const statusRef = ref(db, 'room/status');
-        // display側からの更新完了通知を受け取る場所を参照します
         const ackRef = ref(db, 'room/ack');
-        // ↓↓↓ この行を追加 ↓↓↓
-        // 更新完了通知を待っている更新IDを保存する変数
         let waitingForAckId = null;
 
-        // HTMLの中からidが'circleBtn'の要素（○ボタン）を探して、変数に入れます
+        // --- ここから下がHTML要素の取得です ---
         const circleBtn = document.getElementById('circleBtn');
-        // HTMLの中からidが'triangleBtn'の要素（△ボタン）を探して、変数に入れます
         const triangleBtn = document.getElementById('triangleBtn');
-        // HTMLの中からidが'crossBtn'の要素（×ボタン）を探して、変数に入れます
         const crossBtn = document.getElementById('crossBtn');
-        // HTMLの中からidが'remarksInput'の要素（備考入力欄）を探して、変数に入れます
         const remarksInput = document.getElementById('remarksInput');
-        // HTMLの中からidが'updateRemarksBtn'の要素（備考更新ボタン）を探して、変数に入れます
         const updateRemarksBtn = document.getElementById('updateRemarksBtn');
-        // HTMLの中からidが'clearRemarksBtn'の要素（クリアボタン）を探して、変数に入れます
         const clearRemarksBtn = document.getElementById('clearRemarksBtn');
 
-        // ▼▼▼ この関数をまるごと差し替え ▼▼▼
+        // --- ここからがボタンがクリックされたときの処理です ---
+        
         // 記号ボタンが押されたときに行う処理
         const updateSymbol = (clickedBtn, newSymbol) => {
-            // 他のボタンの pending 状態を解除
             [circleBtn, triangleBtn, crossBtn].forEach(btn => btn.classList.remove('pending'));
-            // 押されたボタンを「更新中」の外観にする
             clickedBtn.classList.add('pending');
-
-            // ユニークな更新IDを生成
             const updateId = Date.now();
-            // このIDの完了通知を待つように設定
             waitingForAckId = updateId;
-
-            // データベースに新しい記号と更新IDを書き込み
             set(statusRef, { symbol: newSymbol, text: '', id: updateId });
         };
 
-        // ▼▼▼ 以下の3行を修正 ▼▼▼
-        // ○ボタンがクリックされたら、updateSymbol処理を実行
         circleBtn.onclick = () => updateSymbol(circleBtn, '○');
-        // △ボタンがクリックされたら、updateSymbol処理を実行
         triangleBtn.onclick = () => updateSymbol(triangleBtn, '△');
-        // ×ボタンがクリックされたら、updateSymbol処理を実行
         crossBtn.onclick = () => updateSymbol(crossBtn, '×');
         
-        // 「備考を更新」ボタンがクリックされたときの処理です
-        // ▼▼▼ この関数をまるごと差し替え ▼▼▼
-        // 「備考を更新」ボタンがクリックされたときの処理です
+        // 「備考を更新」ボタンがクリックされたときの処理
         updateRemarksBtn.onclick = async () => {
-            // ボタンを「更新中」の外観にする
             updateRemarksBtn.classList.add('pending-remarks');
-
             const newText = remarksInput.value;
             const snapshot = await get(statusRef);
             const currentSymbol = snapshot.val()?.symbol || '○';
             const updateId = Date.now();
-            waitingForAckId = updateId; // このIDの完了通知を待つ
-            
-            // データベースに更新IDを含めて書き込みます
+            waitingForAckId = updateId;
             set(statusRef, { symbol: currentSymbol, text: newText, id: updateId });
         };
 
-        // ▼▼▼▼▼ ここからが、データベースの変更を監視してボタンの色を変える処理です ▼▼▼▼▼
-        // データベース('room/status')の変更を常に監視します
-        onValue(statusRef, (snapshot) => {
-            // データベースから現在の状況（記号）を取得します
-            const currentSymbol = snapshot.val()?.symbol;
+        // 「入力欄をクリア」ボタンがクリックされたときの処理
+        clearRemarksBtn.onclick = async () => {
+            clearRemarksBtn.classList.add('pending-remarks');
+            const snapshot = await get(statusRef);
+            const currentSymbol = snapshot.val()?.symbol || '○';
+            const updateId = Date.now();
+            waitingForAckId = updateId;
+            set(statusRef, { symbol: currentSymbol, text: '', id: updateId });
+            remarksInput.value = '';
+        };
 
-            // まず、すべてのボタンからアクティブ用のクラスを一旦削除します
+        // --- ここからがデータベースを監視する処理です ---
+
+        // 1. 状態(status)を監視して、ボタンのアクティブ色を切り替える処理
+        onValue(statusRef, (snapshot) => {
+            const currentSymbol = snapshot.val()?.symbol;
             circleBtn.classList.remove('active-circle');
             triangleBtn.classList.remove('active-triangle');
             crossBtn.classList.remove('active-cross');
 
-            // 現在の記号に応じて、対応するボタンにだけアクティブ用のクラスを追加します
             if (currentSymbol === '○') {
-                // もし記号が'○'なら、○ボタンに'active-circle'クラスを追加
                 circleBtn.classList.add('active-circle');
             } else if (currentSymbol === '△') {
-                // もし記号が'△'なら、△ボタンに'active-triangle'クラスを追加
                 triangleBtn.classList.add('active-triangle');
             } else if (currentSymbol === '×') {
-                // もし記号が'×'なら、×ボタンに'active-cross'クラスを追加
                 crossBtn.classList.add('active-cross');
             }
         });
-        // ▼▼▼ この関数をまるごと差し替え ▼▼▼
-        // 「入力欄をクリア」ボタンがクリックされたときの処理です
-        clearRemarksBtn.onclick = async () => {
-            // ボタンを「更新中」の外観にする
-            clearRemarksBtn.classList.add('pending-remarks');
 
-            const snapshot = await get(statusRef);
-            const currentSymbol = snapshot.val()?.symbol || '○';
-            const updateId = Date.now();
-            waitingForAckId = updateId; // このIDの完了通知を待つ
-            
-            // 備考を空にし、更新IDを含めて書き込みます
-            set(statusRef, { symbol: currentSymbol, text: '', id: updateId });
-            remarksInput.value = '';
-        };
-        // ▲▲▲▲▲ ここまで ▲▲▲▲▲
-        // ▼▼▼ この関数をまるごと差し替え ▼▼▼
-        // display側からの更新完了通知を監視します
+        // 2. 更新完了通知(ack)を監視して、ボタンの「更新中」状態を解除する処理
         onValue(ackRef, (snapshot) => {
             const ackId = snapshot.val()?.id;
             
-            // 通知されたIDが、こちらが待っているIDと一致すれば
             if (ackId && ackId === waitingForAckId) {
                 // すべての記号ボタンから「更新中」の外観を解除
                 [circleBtn, triangleBtn, crossBtn].forEach(btn => btn.classList.remove('pending'));
