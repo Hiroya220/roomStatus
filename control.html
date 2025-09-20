@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作パネル</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; }
+        button {
+            font-size: 50px;
+            width: 100px;
+            height: 100px;
+            margin: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>部屋の状況を変更</h1>
+    <button id="circleBtn">○</button>
+    <button id="triangleBtn">△</button>
+    <button id="crossBtn">×</button>
+
+    <script type="module">
+        // ▼▼▼▼▼ ステップ1でコピーした自分のfirebaseConfigをここに貼り付ける ▼▼▼▼▼
+        const firebaseConfig = {
+            apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
+            authDomain: "roomstatus-7b0c4.firebaseapp.com",
+            databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
+            projectId: "roomstatus-7b0c4",
+            storageBucket: "roomstatus-7b0c4.firebasestorage.app",
+            messagingSenderId: "355762487600",
+            appId: "1:355762487600:web:c27907db8d4c8de18608f5",
+            measurementId: "G-NRH5D6E3G0"
+        };
+        // ▲▲▲▲▲ ここまで ▲▲▲▲▲
+
+        // Firebaseの初期化とデータベース参照の準備
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const statusRef = ref(db, 'room/status'); // データの保存場所を指定
+
+        // ボタンの要素を取得
+        const circleBtn = document.getElementById('circleBtn');
+        const triangleBtn = document.getElementById('triangleBtn');
+        const crossBtn = document.getElementById('crossBtn');
+
+        // ボタンがクリックされたときの処理
+        circleBtn.onclick = () => {
+            set(statusRef, { value: '○' });
+            alert('「○」に設定しました');
+        };
+        triangleBtn.onclick = () => {
+            set(statusRef, { value: '△' });
+            alert('「△」に設定しました');
+        };
+        crossBtn.onclick = () => {
+            set(statusRef, { value: '×' });
+            alert('「×」に設定しました');
+        };
+    </script>
+</body>
+</html>
