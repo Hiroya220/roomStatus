@@ -14,6 +14,28 @@
             /* ページの端から少し内側に余白を設けます */
             padding: 1em;
         }
+        /* ▼▼▼▼▼ パスワード画面用のCSSを追加 ▼▼▼▼▼ */
+        /* パスワード入力フォームのコンテナ */
+        #password-prompt {
+            /* 上からの余白を大きく取ります */
+            margin-top: 50px;
+        }
+        /* パスワード入力欄 */
+        #password-input {
+            /* 文字の大きさを指定 */
+            font-size: 18px;
+            /* 内側の余白を指定 */
+            padding: 10px;
+            /* 横幅を指定 */
+            width: 200px;
+        }
+        /* 送信ボタン */
+        #password-submit {
+            /* 文字の大きさを指定 */
+            font-size: 18px;
+            /* 内側の余白を指定 */
+            padding: 10px 20px;
+        }
 
         /* 記号ボタンを囲むdivタグ用の設定です */
         #symbol-buttons {
@@ -137,6 +159,12 @@
     </style>
 </head>
 <body>
+    <div id="password-prompt">
+        <h2>パスワードを入力してください</h2>
+        <input type="password" id="password-input">
+        <button id="password-submit">送信</button>
+    </div>
+   <main id="main-content" style="display: none;">
     <h1>roomStatus</h1>
     <div id="symbol-buttons">
         <button id="circleBtn">○</button>
@@ -150,8 +178,40 @@
         <button id="updateRemarksBtn">更新</button>
         <button id="clearRemarksBtn">クリア</button>
     </div>
+       </main>
 
     <script type="module">
+        // --- ここから下がパスワード認証の処理です ---
+        
+        // 正しいパスワードを設定します。必ず変更してください。
+        const CORRECT_PASSWORD = 'hiroya168';
+
+        // HTMLからパスワード関連の要素を取得します
+        const passwordPrompt = document.getElementById('password-prompt');
+        const mainContent = document.getElementById('main-content');
+        const passwordInput = document.getElementById('password-input');
+        const passwordSubmit = document.getElementById('password-submit');
+
+        // パスワード送信ボタンがクリックされたときの処理
+        passwordSubmit.onclick = () => {
+            // 入力された値が正しいパスワードと一致するかチェック
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                // 一致した場合
+                // パスワード入力画面を非表示にする
+                passwordPrompt.style.display = 'none';
+                // メインの操作画面を表示する
+                mainContent.style.display = 'block';
+            } else {
+                // 一致しなかった場合
+                // エラーメッセージを表示
+                alert('パスワードが違います。');
+                // 入力欄を空にする
+                passwordInput.value = '';
+            }
+        };
+
+
+        // --- ここから下のFirebase連携処理は変更ありません ---
         // ▼▼▼▼▼ あなたのfirebaseConfig（Firebaseの設定情報）をここに貼り付けます ▼▼▼▼▼
         const firebaseConfig = {
             apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
