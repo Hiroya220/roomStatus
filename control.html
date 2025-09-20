@@ -120,7 +120,7 @@
         /* 「入力欄をクリア」ボタン用の設定を追加 */
         #clearRemarksBtn {
             /* 横幅を親要素の80%にします */
-            width: 20%;
+            width: 60%;
             /* 内側の余白を少し小さめにします */
             padding: 1px;
             /* 文字の大きさを16ピクセルにします */
@@ -242,8 +242,16 @@
             }
         });
         // 「入力欄をクリア」ボタンがクリックされたときの処理です
-        clearRemarksBtn.onclick = () => {
-            // 備考入力欄を空にします
+        clearRemarksBtn.onclick = async () => {
+            // 現在設定されている記号をデータベースから取得します
+            const snapshot = await get(statusRef);
+            // 記号情報を変数に入れます（もし何もなければ'○'を初期値とします）
+            const currentSymbol = snapshot.val()?.symbol || '○';
+            
+            // データベースの備考(text)を空('')にして更新します
+            set(statusRef, { symbol: currentSymbol, text: '' });
+
+            // iPhone側の入力欄も空にします
             remarksInput.value = '';
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
