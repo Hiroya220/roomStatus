@@ -102,6 +102,14 @@
             color: #dc3545;
         }
         /* ▲▲▲▲▲ ここまで ▲▲▲▲▲ */
+        /* ▼▼▼ このスタイルをまるごと追加 ▼▼▼ */
+        /* 'pending'クラスが付いた、更新中のボタンのデザイン */
+        #symbol-buttons button.pending {
+            background-color: #e9ecef; /* 背景を薄い灰色に */
+            border-color: #adb5bd;   /* 枠線を灰色に */
+            color: #6c757d;        /* 記号の色を灰色に */
+            cursor: wait;          /* カーソルを待機状態のアイコンに */
+        }
 
         /* 備考欄のセクション用の設定です */
         #remarks-section {
@@ -237,6 +245,9 @@
         const statusRef = ref(db, 'room/status');
         // display側からの更新完了通知を受け取る場所を参照します
         const ackRef = ref(db, 'room/ack');
+        // ↓↓↓ この行を追加 ↓↓↓
+        // 更新完了通知を待っている更新IDを保存する変数
+        let waitingForAckId = null;
 
         // HTMLの中からidが'circleBtn'の要素（○ボタン）を探して、変数に入れます
         const circleBtn = document.getElementById('circleBtn');
@@ -251,24 +262,30 @@
         // HTMLの中からidが'clearRemarksBtn'の要素（クリアボタン）を探して、変数に入れます
         const clearRemarksBtn = document.getElementById('clearRemarksBtn');
 
-        // 記号ボタンが押されたときに行う処理を、updateSymbolという名前でひとまとめにします
-        const updateSymbol = (newSymbol) => {
-           // ▼▼▼ 以下のように修正 ▼▼▼
-            // Date.now()で現在時刻を取得し、ユニークな更新IDとして利用します
+        // ▼▼▼ この関数をまるごと差し替え ▼▼▼
+        // 記号ボタンが押されたときに行う処理
+        const updateSymbol = (clickedBtn, newSymbol) => {
+            // 他のボタンの pending 状態を解除
+            [circleBtn, triangleBtn, crossBtn].forEach(btn => btn.classList.remove('pending'));
+            // 押されたボタンを「更新中」の外観にする
+            clickedBtn.classList.add('pending');
+
+            // ユニークな更新IDを生成
             const updateId = Date.now();
-            // データベースの'room/status'に、新しい記号・空の備考・更新IDを書き込みます
+            // このIDの完了通知を待つように設定
+            waitingForAckId = updateId;
+
+            // データベースに新しい記号と更新IDを書き込み
             set(statusRef, { symbol: newSymbol, text: '', id: updateId });
-            // ▲▲▲ ここまで修正 ▲▲▲
-            // 備考の入力欄を空にします
-            remarksInput.value = '';
         };
 
-        // ○ボタンがクリックされたら、updateSymbol処理を'○'という文字を渡して実行します
-        circleBtn.onclick = () => updateSymbol('○');
-        // △ボタンがクリックされたら、updateSymbol処理を'△'という文字を渡して実行します
-        triangleBtn.onclick = () => updateSymbol('△');
-        // ×ボタンがクリックされたら、updateSymbol処理を'×'という文字を渡して実行します
-        crossBtn.onclick = () => updateSymbol('×');
+        // ▼▼▼ 以下の3行を修正 ▼▼▼
+        // ○ボタンがクリックされたら、updateSymbol処理を実行
+        circleBtn.onclick = () => updateSymbol(circleBtn, '○');
+        // △ボタンがクリックされたら、updateSymbol処理を実行
+        triangleBtn.onclick = () => updateSymbol(triangleBtn, '△');
+        // ×ボタンがクリックされたら、updateSymbol処理を実行
+        crossBtn.onclick = () => updateSymbol(crossBtn, '×');
         
         // 「備考を更新」ボタンがクリックされたときの処理です
         updateRemarksBtn.onclick = async () => {
@@ -324,17 +341,19 @@
             remarksInput.value = '';
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
-        // ↓↓↓ この処理をまるごと追加 ↓↓↓
+        // ▼▼▼ この関数をまるごと差し替え ▼▼▼
         // display側からの更新完了通知を監視します
         onValue(ackRef, (snapshot) => {
             // 通知されたIDを取得します
             const ackId = snapshot.val()?.id;
-            // 通知があれば（初回読み込み時などは何もしない）
-            if (ackId) {
-                // ここで通知を受け取った際の具体的な処理を実装できます
-                // 今回はシンプルなアラートで通知します
-                console.log('Display updated with ID:', ackId);
-                alert('表示が更新されました');
+            
+            // 通知されたIDが、こちらが待っているIDと一致すれば
+            if (ackId && ackId === waitingForAckId) {
+                // すべてのボタンから「更新中」の外観を解除
+                [circleBtn, triangleBtn, crossBtn].forEach(btn => btn.classList.remove('pending'));
+                // 待機状態を解除
+                waitingForAckId = null;
+                console.log('Acknowledgement received for ID:', ackId);
             }
         });
     </script>
