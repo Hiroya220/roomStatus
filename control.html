@@ -148,6 +148,12 @@
             /* 上のボタンとの間に余白を設けます */
             margin-top: 20px;
         }
+        /* ▼▼▼ このスタイルをまるごと追加 ▼▼▼ */
+        /* 'pending-remarks'クラスが付いた、更新中のボタンのデザイン */
+        .pending-remarks {
+            background-color: #adb5bd; /* 背景を灰色に */
+            cursor: wait;          /* カーソルを待機状態のアイコンに */
+        }
         /* 「入力欄をクリア」ボタン用の設定を追加 */
         #clearRemarksBtn {
             /* 横幅を親要素の80%にします */
@@ -288,20 +294,20 @@
         crossBtn.onclick = () => updateSymbol(crossBtn, '×');
         
         // 「備考を更新」ボタンがクリックされたときの処理です
+        // ▼▼▼ この関数をまるごと差し替え ▼▼▼
+        // 「備考を更新」ボタンがクリックされたときの処理です
         updateRemarksBtn.onclick = async () => {
-            // ▼▼▼ 以下のように修正 ▼▼▼
-            // 備考入力欄に入力されている文字を取得します
+            // ボタンを「更新中」の外観にする
+            updateRemarksBtn.classList.add('pending-remarks');
+
             const newText = remarksInput.value;
-            // データベースから現在の情報を一度だけ取得します
             const snapshot = await get(statusRef);
-            // 現在設定されている記号を取得します。もし何もなければ'○'を初期値とします
             const currentSymbol = snapshot.val()?.symbol || '○';
-            // ユニークな更新IDを生成します
             const updateId = Date.now();
+            waitingForAckId = updateId; // このIDの完了通知を待つ
             
-            // データベースに、現在の記号と新しい備考、そして更新IDを書き込みます
+            // データベースに更新IDを含めて書き込みます
             set(statusRef, { symbol: currentSymbol, text: newText, id: updateId });
-            // ▲▲▲ ここまで修正 ▲▲▲
         };
 
         // ▼▼▼▼▼ ここからが、データベースの変更を監視してボタンの色を変える処理です ▼▼▼▼▼
@@ -327,30 +333,36 @@
                 crossBtn.classList.add('active-cross');
             }
         });
+        // ▼▼▼ この関数をまるごと差し替え ▼▼▼
         // 「入力欄をクリア」ボタンがクリックされたときの処理です
         clearRemarksBtn.onclick = async () => {
-            // 現在設定されている記号をデータベースから取得します
-            const snapshot = await get(statusRef);
-            // 記号情報を変数に入れます（もし何もなければ'○'を初期値とします）
-            const currentSymbol = snapshot.val()?.symbol || '○';
-            
-            // データベースの備考(text)を空('')にして更新します
-            set(statusRef, { symbol: currentSymbol, text: '' });
+            // ボタンを「更新中」の外観にする
+            clearRemarksBtn.classList.add('pending-remarks');
 
-            // iPhone側の入力欄も空にします
+            const snapshot = await get(statusRef);
+            const currentSymbol = snapshot.val()?.symbol || '○';
+            const updateId = Date.now();
+            waitingForAckId = updateId; // このIDの完了通知を待つ
+            
+            // 備考を空にし、更新IDを含めて書き込みます
+            set(statusRef, { symbol: currentSymbol, text: '', id: updateId });
             remarksInput.value = '';
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
         // ▼▼▼ この関数をまるごと差し替え ▼▼▼
         // display側からの更新完了通知を監視します
         onValue(ackRef, (snapshot) => {
-            // 通知されたIDを取得します
             const ackId = snapshot.val()?.id;
             
             // 通知されたIDが、こちらが待っているIDと一致すれば
             if (ackId && ackId === waitingForAckId) {
-                // すべてのボタンから「更新中」の外観を解除
+                // すべての記号ボタンから「更新中」の外観を解除
                 [circleBtn, triangleBtn, crossBtn].forEach(btn => btn.classList.remove('pending'));
+                
+                // 備考ボタンからも「更新中」の外観を解除
+                updateRemarksBtn.classList.remove('pending-remarks');
+                clearRemarksBtn.classList.remove('pending-remarks');
+
                 // 待機状態を解除
                 waitingForAckId = null;
                 console.log('Acknowledgement received for ID:', ackId);
