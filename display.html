@@ -11,11 +11,12 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            /* 背景色を白に、文字の基本色を黒に変更 */
             background-color: #fff;
             color: #000;
             font-family: sans-serif;
             text-align: center;
+            /* 背景色の切り替えを滑らかにする */
+            transition: background-color 0.5s ease;
         }
         #statusContainer {
             display: flex;
@@ -31,7 +32,6 @@
             margin-top: 20px;
             padding: 0 20px;
             min-height: 1.2em;
-            /* 備考欄の文字色を少し濃いグレーに設定 */
             color: #333;
         }
     </style>
@@ -45,14 +45,14 @@
     <script type="module">
         // ▼▼▼▼▼ あなたのfirebaseConfigをここに貼り付ける ▼▼▼▼▼
         const firebaseConfig = {
-    apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
-    authDomain: "roomstatus-7b0c4.firebaseapp.com",
-    databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
-    projectId: "roomstatus-7b0c4",
-    storageBucket: "roomstatus-7b0c4.firebasestorage.app",
-    messagingSenderId: "355762487600",
-    appId: "1:355762487600:web:c27907db8d4c8de18608f5",
-    measurementId: "G-NRH5D6E3G0"
+   　　　 apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
+  　　　  authDomain: "roomstatus-7b0c4.firebaseapp.com",
+   　　　 databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
+  　　　  projectId: "roomstatus-7b0c4",
+   　　　 storageBucket: "roomstatus-7b0c4.firebasestorage.app",
+  　　　  messagingSenderId: "355762487600",
+  　　　  appId: "1:355762487600:web:c27907db8d4c8de18608f5",
+   　　　 measurementId: "G-NRH5D6E3G0"
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
@@ -73,28 +73,31 @@
                 symbolDisplay.innerText = symbol;
                 remarksDisplay.innerText = data.text || '';
 
-                // ▼▼▼▼▼ ここからが追加・変更部分 ▼▼▼▼▼
-                // 記号に応じて色を切り替える
+                // 記号に応じて記号の色と背景色を切り替える
                 switch (symbol) {
                     case '○':
-                        symbolDisplay.style.color = 'green';
+                        symbolDisplay.style.color = '#28a745'; // 緑
+                        document.body.style.backgroundColor = '#e6ffed'; // 淡い緑
                         break;
                     case '△':
-                        symbolDisplay.style.color = 'orange';
+                        symbolDisplay.style.color = '#ffc107'; // オレンジ
+                        document.body.style.backgroundColor = '#fff8e1'; // 淡いオレンジ
                         break;
                     case '×':
-                        symbolDisplay.style.color = 'red';
+                        symbolDisplay.style.color = '#dc3545'; // 赤
+                        document.body.style.backgroundColor = '#ffebee'; // 淡い赤
                         break;
                     default:
-                        symbolDisplay.style.color = '#000'; // それ以外は黒
+                        symbolDisplay.style.color = '#000'; // 黒
+                        document.body.style.backgroundColor = '#fff'; // 白
                         break;
                 }
-                // ▲▲▲▲▲ ここまでが追加・変更部分 ▲▲▲▲▲
 
             } else {
                 symbolDisplay.innerText = '?';
                 remarksDisplay.innerText = '';
-                symbolDisplay.style.color = '#000'; // データがない場合も黒
+                symbolDisplay.style.color = '#000'; // 黒
+                document.body.style.backgroundColor = '#fff'; // 白
             }
         });
     </script>
