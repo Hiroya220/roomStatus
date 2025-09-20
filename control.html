@@ -5,21 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>操作パネル</title>
     <style>
-        body { font-family: sans-serif; text-align: center; }
+        body { font-family: sans-serif; text-align: center; padding: 1em; }
         button {
             font-size: 50px;
             width: 100px;
             height: 100px;
-            margin: 20px;
+            margin: 15px;
             cursor: pointer;
+        }
+        #remarks-section {
+            margin-top: 30px;
+        }
+        #remarksInput {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        #updateRemarksBtn {
+            width: 80%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <h1>部屋の状況を変更</h1>
-    <button id="circleBtn">○</button>
-    <button id="triangleBtn">△</button>
-    <button id="crossBtn">×</button>
+    <div>
+        <button id="circleBtn">○</button>
+        <button id="triangleBtn">△</button>
+        <button id="crossBtn">×</button>
+    </div>
+
+    <div id="remarks-section">
+        <h2>備考</h2>
+        <input type="text" id="remarksInput" placeholder="例：15時まで会議中">
+        <button id="updateRemarksBtn">備考を更新</button>
+    </div>
 
     <script type="module">
         // ▼▼▼▼▼ ステップ1でコピーした自分のfirebaseConfigをここに貼り付ける ▼▼▼▼▼
@@ -35,32 +61,43 @@
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
-        // Firebaseの初期化とデータベース参照の準備
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const statusRef = ref(db, 'room/status'); // データの保存場所を指定
+        const statusRef = ref(db, 'room/status'); // データの保存場所
 
-        // ボタンの要素を取得
+        // ボタンと入力欄の要素を取得
         const circleBtn = document.getElementById('circleBtn');
         const triangleBtn = document.getElementById('triangleBtn');
         const crossBtn = document.getElementById('crossBtn');
+        const remarksInput = document.getElementById('remarksInput');
+        const updateRemarksBtn = document.getElementById('updateRemarksBtn');
 
-        // ボタンがクリックされたときの処理
-        circleBtn.onclick = () => {
-            set(statusRef, { value: '○' });
-            alert('「○」に設定しました');
+        // 記号ボタンがクリックされたときの処理
+        const updateSymbol = (newSymbol) => {
+            // 記号を更新し、備考は空にする
+            set(statusRef, { symbol: newSymbol, text: '' });
+            alert(`「${newSymbol}」に設定しました`);
+            remarksInput.value = ''; // 入力欄もクリア
         };
-        triangleBtn.onclick = () => {
-            set(statusRef, { value: '△' });
-            alert('「△」に設定しました');
+
+        circleBtn.onclick = () => updateSymbol('○');
+        triangleBtn.onclick = () => updateSymbol('△');
+        crossBtn.onclick = () => updateSymbol('×');
+        
+        // 「備考を更新」ボタンがクリックされたときの処理
+        updateRemarksBtn.onclick = async () => {
+            const newText = remarksInput.value;
+            // 現在の記号を取得してから、テキストだけを更新する
+            const snapshot = await get(statusRef);
+            const currentSymbol = snapshot.val()?.symbol || '○'; // データがなければ'○'をデフォルトにする
+            
+            set(statusRef, { symbol: currentSymbol, text: newText });
+            alert('備考を更新しました');
         };
-        crossBtn.onclick = () => {
-            set(statusRef, { value: '×' });
-            alert('「×」に設定しました');
-        };
+
     </script>
 </body>
 </html>
