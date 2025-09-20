@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部屋の状況</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #333;
+            color: #fff;
+            font-family: sans-serif;
+        }
+        #statusDisplay {
+            font-size: 40vw; /* 画面幅に応じたサイズ */
+        }
+    </style>
+</head>
+<body>
+    <div id="statusDisplay">読み込み中...</div>
+
+    <script type="module">
+        // ▼▼▼▼▼ control.htmlと同じ、あなたのfirebaseConfigをここに貼り付ける ▼▼▼▼▼
+        const firebaseConfig = {
+            apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
+            authDomain: "roomstatus-7b0c4.firebaseapp.com",
+            databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
+            projectId: "roomstatus-7b0c4",
+            storageBucket: "roomstatus-7b0c4.firebasestorage.app",
+            messagingSenderId: "355762487600",
+            appId: "1:355762487600:web:c27907db8d4c8de18608f5",
+            measurementId: "G-NRH5D6E3G0"
+        };
+        // ▲▲▲▲▲ ここまで ▲▲▲▲▲
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const statusRef = ref(db, 'room/status'); // 監視するデータの場所を指定
+
+        const statusDisplay = document.getElementById('statusDisplay');
+
+        // データベースの変更を監視する
+        onValue(statusRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                statusDisplay.innerText = data.value; // データがあれば表示を更新
+            } else {
+                statusDisplay.innerText = '?'; // データがなければ「?」を表示
+            }
+        });
+    </script>
+</body>
+</html>
