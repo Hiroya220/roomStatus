@@ -58,11 +58,14 @@
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-
+        // import文に set を追加
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const statusRef = ref(db, 'room/status');
+        // control側へ更新完了を通知する場所を参照します
+        const ackRef = ref(db, 'room/ack');
 
         const symbolDisplay = document.getElementById('symbolDisplay');
         const remarksDisplay = document.getElementById('remarksDisplay');
@@ -93,6 +96,14 @@
                         document.body.style.backgroundColor = '#fff'; // 白
                         break;
                 }
+                // ▼▼▼ 以下をまるごと追加 ▼▼▼
+                // 受け取ったデータに更新IDが含まれていれば
+                const receivedId = data.id;
+                if (receivedId) {
+                    // ackRefの場所に、受け取ったIDを書き込むことで「表示更新完了」を通知する
+                    set(ackRef, { id: receivedId });
+                }
+                // ▲▲▲ ここまで追加 ▲▲
 
             } else {
                 symbolDisplay.innerText = '?';
