@@ -11,6 +11,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            /* 背景色を白に、文字の基本色を黒に変更 */
             background-color: #fff;
             color: #000;
             font-family: sans-serif;
@@ -18,18 +19,19 @@
         }
         #statusContainer {
             display: flex;
-            flex-direction: column; /* 縦に並べる */
+            flex-direction: column;
             align-items: center;
         }
         #symbolDisplay {
-            font-size: 35vw; /* 画面幅に応じたサイズ */
+            font-size: 35vw;
             line-height: 1;
         }
         #remarksDisplay {
-            font-size: 5vw; /* 備考は少し小さめに */
+            font-size: 5vw;
             margin-top: 20px;
-            padding: 0 20px; /* 長文の場合に左右に余白 */
-            min-height: 1.2em; /* 備考がない時も高さを確保 */
+            padding: 0 20px;
+            min-height: 1.2em;
+            /* 備考欄の文字色を少し濃いグレーに設定 */
             color: #333;
         }
     </style>
@@ -41,54 +43,58 @@
     </div>
 
     <script type="module">
-        // ▼▼▼▼▼ control.htmlと同じ、あなたのfirebaseConfigをここに貼り付ける ▼▼▼▼▼
+        // ▼▼▼▼▼ あなたのfirebaseConfigをここに貼り付ける ▼▼▼▼▼
         const firebaseConfig = {
-            apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
-            authDomain: "roomstatus-7b0c4.firebaseapp.com",
-            databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
-            projectId: "roomstatus-7b0c4",
-            storageBucket: "roomstatus-7b0c4.firebasestorage.app",
-            messagingSenderId: "355762487600",
-            appId: "1:355762487600:web:c27907db8d4c8de18608f5",
-            measurementId: "G-NRH5D6E3G0"
+    apiKey: "AIzaSyApeciQMRZp47i1S5I28eUDGCwUIJx46o4",
+    authDomain: "roomstatus-7b0c4.firebaseapp.com",
+    databaseURL: "https://roomstatus-7b0c4-default-rtdb.firebaseio.com",
+    projectId: "roomstatus-7b0c4",
+    storageBucket: "roomstatus-7b0c4.firebasestorage.app",
+    messagingSenderId: "355762487600",
+    appId: "1:355762487600:web:c27907db8d4c8de18608f5",
+    measurementId: "G-NRH5D6E3G0"
         };
         // ▲▲▲▲▲ ここまで ▲▲▲▲▲
 
-       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const statusRef = ref(db, 'room/status'); // 監視するデータの場所
+        const statusRef = ref(db, 'room/status');
 
         const symbolDisplay = document.getElementById('symbolDisplay');
         const remarksDisplay = document.getElementById('remarksDisplay');
 
-        // データベースの変更を監視する
         onValue(statusRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // 記号と備考をそれぞれ表示
-                symbolDisplay.innerText = data.symbol || '?'; // 記号がなければ'?'
-                remarksDisplay.innerText = data.text || '';  // 備考がなければ空
+                const symbol = data.symbol || '?';
+                symbolDisplay.innerText = symbol;
+                remarksDisplay.innerText = data.text || '';
+
+                // ▼▼▼▼▼ ここからが追加・変更部分 ▼▼▼▼▼
+                // 記号に応じて色を切り替える
                 switch (symbol) {
                     case '○':
-                        symbolDisplay.style.color = '#00ff00';
+                        symbolDisplay.style.color = 'green';
                         break;
                     case '△':
-                        symbolDisplay.style.color = '#ffff00';
+                        symbolDisplay.style.color = 'orange';
                         break;
                     case '×':
-                        symbolDisplay.style.color = '#ff0000';
+                        symbolDisplay.style.color = 'red';
                         break;
-                    // default:
-                    //     symbolDisplay.style.color = '#000'; // それ以外は黒
-                    //     break;
+                    default:
+                        symbolDisplay.style.color = '#000'; // それ以外は黒
+                        break;
                 }
+                // ▲▲▲▲▲ ここまでが追加・変更部分 ▲▲▲▲▲
+
             } else {
-                // データが何もない場合
                 symbolDisplay.innerText = '?';
                 remarksDisplay.innerText = '';
+                symbolDisplay.style.color = '#000'; // データがない場合も黒
             }
         });
     </script>
