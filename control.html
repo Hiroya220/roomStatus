@@ -184,14 +184,7 @@
     <div id="symbol-buttons">
         <button id="circleBtn">○</button>
         <button id="triangleBtn">△</button>
-        <button id="crossBtn">×</button>
-    </div>
-
-    <div id="remarks-section">
-        <h2>備考</h2>
-        <input type="text" id="remarksInput" placeholder="例：ミーティング">
-        <button id="updateRemarksBtn">更新</button>
-        <button id="clearRemarksBtn">クリア</button>
+        <button id="crossBtn">□</button>
     </div>
        </main>
 
@@ -322,7 +315,7 @@
                 circleBtn.classList.add('active-circle');
             } else if (currentSymbol === '△') {
                 triangleBtn.classList.add('active-triangle');
-            } else if (currentSymbol === '×') {
+            } else if (currentSymbol === '□') {
                 crossBtn.classList.add('active-cross');
             }
         });
