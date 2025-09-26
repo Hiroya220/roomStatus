@@ -180,7 +180,7 @@
         <button id="password-submit">送信</button>
     </div>
    <main id="main-content" style="display: none;">
-    <h1>roomStatus</h1>
+    <h1>正しい記号を選べ</h1>
     <div id="symbol-buttons">
         <button id="circleBtn">○</button>
         <button id="triangleBtn">△</button>
@@ -278,7 +278,7 @@
 
         circleBtn.onclick = () => updateSymbol(circleBtn, '○');
         triangleBtn.onclick = () => updateSymbol(triangleBtn, '△');
-        crossBtn.onclick = () => updateSymbol(crossBtn, '×');
+        crossBtn.onclick = () => updateSymbol(crossBtn, '□');
         
         // 「備考を更新」ボタンがクリックされたときの処理
         updateRemarksBtn.onclick = async () => {
