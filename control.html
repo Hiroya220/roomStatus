@@ -180,11 +180,18 @@
         <button id="password-submit">送信</button>
     </div>
    <main id="main-content" style="display: none;">
-    <h1>正しい記号を選べ</h1>
+    <h1>roomStatus</h1>
     <div id="symbol-buttons">
         <button id="circleBtn">○</button>
         <button id="triangleBtn">△</button>
-        <button id="crossBtn">□</button>
+        <button id="crossBtn">×</button>
+    </div>
+
+    <div id="remarks-section">
+        <h2>備考</h2>
+        <input type="text" id="remarksInput" placeholder="例：ミーティング">
+        <button id="updateRemarksBtn">更新</button>
+        <button id="clearRemarksBtn">クリア</button>
     </div>
        </main>
 
@@ -276,9 +283,9 @@
             set(statusRef, { symbol: newSymbol, text: '', id: updateId });
         };
 
-        circleBtn.onclick = () => updateSymbol(circleBtn, '311教室に行け');
-        triangleBtn.onclick = () => updateSymbol(triangleBtn, '401教室に行け');
-        crossBtn.onclick = () => updateSymbol(crossBtn, '516教室に行け');
+        circleBtn.onclick = () => updateSymbol(circleBtn, '○');
+        triangleBtn.onclick = () => updateSymbol(triangleBtn, '△');
+        crossBtn.onclick = () => updateSymbol(crossBtn, '×');
         
         // 「備考を更新」ボタンがクリックされたときの処理
         updateRemarksBtn.onclick = async () => {
@@ -315,7 +322,7 @@
                 circleBtn.classList.add('active-circle');
             } else if (currentSymbol === '△') {
                 triangleBtn.classList.add('active-triangle');
-            } else if (currentSymbol === '□') {
+            } else if (currentSymbol === '×') {
                 crossBtn.classList.add('active-cross');
             }
         });
